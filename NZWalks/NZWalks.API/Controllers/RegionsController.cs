@@ -54,14 +54,14 @@ namespace NZWalks.API.Controllers
         [ActionName("GetRegionAsync")]
         public async Task<IActionResult> GetRegionAsync(Guid id)
         {
-            var domregion = await regionRepository.GetAsync(id);
+            var domRegion = await regionRepository.GetAsync(id);
 
-            if (domregion == null)
+            if (domRegion == null)
             {
                 return NotFound();
             }
 
-            var regionDTO = mapper.Map<Models.DTO.Region>(domregion);
+            var regionDTO = mapper.Map<Models.DTO.Region>(domRegion);
             return Ok(regionDTO);
         }
 
@@ -111,7 +111,7 @@ namespace NZWalks.API.Controllers
             }
 
             // Convert response back to DTO
-            //var regionDTO = mapper.Map<Models.DTO.Region>(domregion);
+            //var regionDTO = mapper.Map<Models.DTO.Region>(region);
             var regionDTO = new Models.DTO.Region
             {
                 Id = region.Id,
