@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using NZWalks.API.Repositories;
 
 namespace NZWalks.API.Controllers
+
 {
     [ApiController]
     [Route("[controller]")]
@@ -82,7 +83,7 @@ namespace NZWalks.API.Controllers
             var walkDomain = await walkRepository.DeleteAsync(id);
 
             // If null NotFound
-            if(walkDomain == null)
+            if (walkDomain == null)
             {
                 return NotFound("The walk was not Found");
             }
@@ -111,7 +112,7 @@ namespace NZWalks.API.Controllers
             walkDomain = await walkRepository.UpdateAsync(id, walkDomain);
 
             // Handle Null (not found)
-            if(walkDomain == null)
+            if (walkDomain == null)
             {
                 return NotFound();
             }
