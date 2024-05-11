@@ -1,14 +1,13 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using NZWalks.API.Models.Domain;
-using NZWalks.API.Models.DTO;
 using NZWalks.API.Repositories;
 
 namespace NZWalks.API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("[controller]")]    
     public class RegionsController : Controller
     {
         private readonly IRegionRepository regionRepository;
@@ -21,6 +20,7 @@ namespace NZWalks.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "reader")]
         public async Task<IActionResult> GetAllRegionsAsync()
         {
             var regions = await regionRepository.GetAllAsync();
@@ -52,27 +52,29 @@ namespace NZWalks.API.Controllers
         [HttpGet]
         [Route("{id:guid}")]
         [ActionName("GetRegionAsync")]
+        [Authorize(Roles = "reader")]
         public async Task<IActionResult> GetRegionAsync(Guid id)
         {
-            var domRegion = await regionRepository.GetAsync(id);
+            var region = await regionRepository.GetAsync(id);
 
-            if (domRegion == null)
+            if (region == null)
             {
                 return NotFound("Data not Found!");
             }
 
-            var regionDTO = mapper.Map<Models.DTO.Region>(domRegion);
+            var regionDTO = mapper.Map<Models.DTO.Region>(region);
             return Ok(regionDTO);
         }
 
         [HttpPost]
+        [Authorize(Roles = "writer")]
         public async Task<IActionResult> AddRegionAsync(Models.DTO.AddRegionRequest addRegionRequest)
         {
-            // Validate the Request
-            if (!ValidateAddRegionAsync(addRegionRequest))
-            {
-                return BadRequest(ModelState);
-            }
+            //// Validate the Request
+            //if (!ValidateAddRegionAsync(addRegionRequest))
+            //{
+            //    return BadRequest(ModelState);
+            //}
 
 
             // Request(DTO) to Domain model conventional
@@ -106,6 +108,7 @@ namespace NZWalks.API.Controllers
 
         [HttpDelete]
         [Route("{id:guid}")]
+        [Authorize(Roles = "writer")]
         public async Task<IActionResult> DeleteRegionAsync(Guid id)
         {
             // Get region from Database
@@ -114,11 +117,10 @@ namespace NZWalks.API.Controllers
             // If null NotFound
             if (region == null)
             {
-                return NotFound();
+                return NotFound("Data is not found.");
             }
 
             // Convert response back to DTO
-            //var regionDTO = mapper.Map<Models.DTO.Region>(region);
             var regionDTO = new Models.DTO.Region
             {
                 Id = region.Id,
@@ -136,13 +138,14 @@ namespace NZWalks.API.Controllers
 
         [HttpPut]
         [Route("{id:guid}")]
+        [Authorize(Roles = "writer")]
         public async Task<IActionResult> UpdateRegionAsync([FromRoute] Guid id, [FromBody] Models.DTO.UpdateRegionRequest updateRegionRequest)
         {
-            // Validate the incoming request
-            if (!ValidateUpdateRegionAsync(updateRegionRequest))
-            {
-                return BadRequest(ModelState);
-            }
+            //// Validate the incoming request
+            //if (!ValidateUpdateRegionAsync(updateRegionRequest))
+            //{
+            //    return BadRequest(ModelState);
+            //}
 
             // Convert DTO to Domain model
             var region = new Models.Domain.Region()
@@ -161,7 +164,7 @@ namespace NZWalks.API.Controllers
             // If Null then NotFound
             if(region == null)
             {
-                return NotFound();
+                return NotFound("Data is not found.");
             }
 
             // Convert Domain back to DTO
@@ -202,16 +205,6 @@ namespace NZWalks.API.Controllers
             if (addRegionRequest.Area <= 0)
             {
                 ModelState.AddModelError(nameof(addRegionRequest.Area), $"{nameof(addRegionRequest.Area)} cannot be less than or equal to zero.");
-            }
-
-            if (addRegionRequest.Lat <= 0)
-            {
-                ModelState.AddModelError(nameof(addRegionRequest.Lat), $"{nameof(addRegionRequest.Lat)} cannot be less than or equal to zero.");
-            }
-
-            if (addRegionRequest.Long <= 0)
-            {
-                ModelState.AddModelError(nameof(addRegionRequest.Long), $"{nameof(addRegionRequest.Long)} cannot be less than or equal to zero.");
             }
 
             if (addRegionRequest.Population < 0)
